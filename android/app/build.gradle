@@ -1,0 +1,13 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'com.visi0n.soready'
+    compileSdk 33
+    buildToolsVersion '33.0.2'
+    defaultConfig {
+        applicationId 'com.visi0n.soready'
+        minSdk 24
+        targetSdk 33
+        versionCode 1
+        versionName '1.0'
+    }
+}

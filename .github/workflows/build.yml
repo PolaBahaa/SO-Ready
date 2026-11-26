@@ -1,0 +1,73 @@
+name: Build exe and apk
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Copy app source
+        run: copy index.html electron\index.html
+        shell: cmd
+      - name: Install and build portable exe
+        working-directory: electron
+        run: |
+          npm ci
+          npm run dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: so-ready-windows-exe
+          path: electron/dist/*.exe
+
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - name: Install SDK packages
+        run: sdkmanager "platforms;android-33" "build-tools;33.0.2"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "7.6.4"
+      - name: Copy app source and build apk
+        run: |
+          cp index.html android/app/src/main/assets/index.html
+          cd android
+          gradle assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: so-ready-android-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+
+  release:
+    needs: [exe, apk]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download@v4
+        with:
+          path: artifacts
+      - name: Rename apk
+        run: |
+          find artifacts -name 'app-debug.apk' -execdir mv {} SO-Ready.apk \;
+          find artifacts -type f | sort
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Build ${{ github.run_number }}
+          files: |
+            artifacts/**/*.exe
+            artifacts/**/*.apk
