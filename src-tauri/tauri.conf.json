@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "SO Ready",
+  "version": "1.0.0",
+  "identifier": "com.visi0n.soready",
+  "build": {
+    "frontendDist": "app"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "SO Ready",
+        "width": 1460,
+        "height": 900,
+        "resizable": true
+      }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": false,
+    "icon": ["icons/icon.ico"]
+  }
+}

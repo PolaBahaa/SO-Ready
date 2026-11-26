@@ -13,21 +13,27 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
         with:
-          node-version: 20
+          workspaces: src-tauri
       - name: Copy app source
-        run: copy index.html electron\index.html
-        shell: cmd
-      - name: Install and build portable exe
-        working-directory: electron
+        shell: pwsh
         run: |
-          npm ci
-          npm run dist
+          New-Item -ItemType Directory -Force src-tauri/app | Out-Null
+          Copy-Item index.html src-tauri/app/index.html
+      - name: Install Tauri CLI
+        run: npm install --no-save --no-audit --no-fund @tauri-apps/cli@^2
+      - name: Build portable exe
+        working-directory: src-tauri
+        run: npx tauri build --no-bundle
+      - name: Collect exe
+        shell: pwsh
+        run: Copy-Item src-tauri/target/release/so-ready.exe SO-Ready-Portable-${{ github.ref_name == 'main' && '1.0.0' || '1.0.0' }}.exe
       - uses: actions/upload-artifact@v4
         with:
           name: so-ready-windows-exe
-          path: electron/dist/*.exe
+          path: SO-Ready-Portable-*.exe
 
   apk:
     runs-on: ubuntu-latest
