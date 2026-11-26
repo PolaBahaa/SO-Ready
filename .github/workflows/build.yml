@@ -67,9 +67,13 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - name: Rename apk
+      - uses: actions/checkout@v4
+        with:
+          path: src
+      - name: Rename apk and add html
         run: |
           find artifacts -name 'app-debug.apk' -execdir mv {} SO-Ready.apk \;
+          cp src/index.html artifacts/SO-Ready.html
           find artifacts -type f | sort
       - uses: softprops/action-gh-release@v2
         with:
@@ -78,3 +82,4 @@ jobs:
           files: |
             artifacts/**/*.exe
             artifacts/**/*.apk
+            artifacts/SO-Ready.html
