@@ -50,6 +50,7 @@ public class MainActivity extends Activity {
                     + "var b64=(''+fr.result).split(',')[1];"
                     + "AndroidBridge.saveFile(b64,a.download||'SO-Ready-file',b.type||'application/octet-stream');};"
                     + "fr.readAsDataURL(b);});},true);})()";
+                view.evaluateJavascript("document.documentElement.style.zoom='0.8'", null);
                 view.evaluateJavascript(js, null);
             }
         });
